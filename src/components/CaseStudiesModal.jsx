@@ -15,11 +15,18 @@ export default function CaseStudiesModal({
   handleModalResize,
   toggle,
   urlFor,
+  caseStudiesState
 }) {
   const dispatch = useDispatch();
   const maximizeRef = useRef(null);
   const audioRef = useRef(null);
-  const [caseStudies, setCaseStudies] = useState([]);
+  const [caseStudies, setCaseStudies] = useState(caseStudiesState);
+
+  useEffect(() => {
+    if (caseStudiesState) {
+      setCaseStudies(caseStudiesState);
+    }
+  }, [caseStudiesState]);
 
   useEffect(() => {
     // Load the audio file
@@ -28,15 +35,18 @@ export default function CaseStudiesModal({
     );
 
     // Fetch case studies data
-    async function fetchCaseStudies() {
+    const fetchCaseStudies = async () => {
       try {
-        const response = await fetch("/api/fetchData");
+        const response = await fetch('/api/fetchData');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
         const data = await response.json();
         setCaseStudies(data.caseStudies);
       } catch (error) {
-        console.error("Error fetching case studies:", error);
+        console.error('Error fetching case studies:', error);
       }
-    }
+    };
 
     fetchCaseStudies();
   }, []);
@@ -82,7 +92,7 @@ export default function CaseStudiesModal({
       <div className={styles.modal_content}>
         <div ref={maximizeRef} className={styles.modal_body}>
           <div className={styles.case_studies_body}>
-            {caseStudies.map((study, index) => (
+            {caseStudies?.map((study, index) => (
               <div className={styles.case_study} key={index}>
                 <div height={300} offset={300}>
                   <div className={styles.case_image_wrap}>

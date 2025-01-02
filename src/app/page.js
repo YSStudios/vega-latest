@@ -23,6 +23,13 @@ export default function Home() {
   const buttonRef = useRef(null);
   const vegaButtonSoundRef = useRef(null);
   const animationSpeedRef = useRef(0.008);
+  const [pageData, setPageData] = useState({
+    caseStudies: null,
+    about: null,
+    trans: null,
+    vegaTv: null,
+    songData: null
+  });
 
   const handleFocus = (refName) => {
     if (
@@ -73,6 +80,24 @@ export default function Home() {
     });
   }, [loaderActive]);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('/api/fetchData');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        console.log("Fetched data:", data); // Debug log
+        setPageData(data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   return (
     <>
       <Particle animationSpeedRef={animationSpeedRef} />
@@ -98,7 +123,11 @@ export default function Home() {
         className="fadeIn"
       />
       <ModalGrid
-        handleFocus={handleFocus}
+        caseStudies={pageData.caseStudies}
+        about={pageData.about}
+        trans={pageData.trans}
+        vegaTv={pageData.vegaTv}
+        songData={pageData.songData}
         setFocusedComponent={setFocusedComponent}
         focusedComponent={focusedComponent}
         isCaseStudyClicked={isCaseStudyClicked}

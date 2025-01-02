@@ -24,32 +24,24 @@ export default function AboutModal({
   toggle,
   urlFor,
   handleModalResize,
+  aboutState
 }) {
   const active = useSelector(modalValue);
   const dispatch = useDispatch();
   const maximizeRef = useRef(null);
   const [currentImage, setCurrentImage] = useState(null);
   const [activeSlide, setActiveSlide] = useState(0);
-  const [aboutData, setAboutData] = useState([]);
+  const [aboutData, setAboutData] = useState(aboutState);
 
   useEffect(() => {
-    // Fetch about data
-    async function fetchAboutData() {
-      try {
-        const response = await fetch("/api/fetchData");
-        const data = await response.json();
-        setAboutData(data.about);
-      } catch (error) {
-        console.error("Error fetching about data:", error);
-      }
+    if (aboutState) {
+      setAboutData(aboutState[0]);
     }
-
-    fetchAboutData();
-  }, []);
+  }, [aboutState]);
 
   useEffect(() => {
-    if (aboutData.length > 0 && aboutData[0].imagesGallery2) {
-      setCurrentImage(aboutData[0].imagesGallery2[0]);
+    if (aboutData && aboutData.imagesGallery2) {
+      setCurrentImage(aboutData.imagesGallery2[0]);
     }
   }, [aboutData]);
 
@@ -66,21 +58,21 @@ export default function AboutModal({
       />
       <div className={styles.modal_content}>
         <div ref={maximizeRef} className={styles.modal_body}>
-          {aboutData.slice(0, 1).map((about, index) => (
-            <div key={index}>
+          {aboutData && (
+            <div>
               <div className={styles.about_logo}>
-                {about.logoUrl && (
+                {aboutData.logoUrl && (
                   <video autoPlay loop muted playsInline>
-                    <source src={about.logoUrl} type="video/webm" />
+                    <source src={aboutData.logoUrl} type="video/webm" />
                     Your browser does not support the video tag.
                   </video>
                 )}
               </div>
             </div>
-          ))}
+          )}
 
-          {aboutData.map((about, index) => (
-            <div key={index} className={styles.about_info}>
+          {aboutData && (
+            <div className={styles.about_info}>
               <h1 className={styles.about_title}>vega.earth</h1>
               <span className={styles.est_date}>est. 2024</span>
               <ul className={styles.about_stats}>
@@ -164,7 +156,7 @@ export default function AboutModal({
                   </div>
 
                   <div className={styles.team_slider}>
-                    {about.imagesGallery2 && (
+                    {aboutData && aboutData.imagesGallery2 && (
                       <Slider
                         infinite={true}
                         speed={500}
@@ -178,8 +170,8 @@ export default function AboutModal({
                         className={`${styles.team_slick_slider} team_slick_slider`}
                         customPaging={(i) => (
                           <div>
-                            <span>{about.imagesGallery2[i].name}</span>
-                            {about.imagesGallery2[i].title}
+                            <span>{aboutData.imagesGallery2[i].name}</span>
+                            {aboutData.imagesGallery2[i].title}
                           </div>
                         )}
                         responsive={[
@@ -199,7 +191,7 @@ export default function AboutModal({
                           },
                         ]}
                       >
-                        {about.imagesGallery2.map((item, itemIndex) => (
+                        {aboutData.imagesGallery2.map((item, itemIndex) => (
                           <div key={itemIndex} className={styles.team_member}>
                             <img
                               src={urlFor(item.image)
@@ -383,12 +375,12 @@ export default function AboutModal({
                   </div>
                   {/* make a slider that is 6 slides wide and 4 columns tall */}
                   <div className={styles.partners_slider}>
-                    {about.imagesGallery && (
+                    {aboutData && aboutData.imagesGallery && (
                       <>
                         {Array.from(
                           {
                             length: Math.ceil(
-                              Math.min(about.imagesGallery.length, 24) / 6
+                              Math.min(aboutData.imagesGallery.length, 24) / 6
                             ),
                           },
                           (_, i) => (
@@ -431,7 +423,7 @@ export default function AboutModal({
                                 },
                               ]}
                             >
-                              {about.imagesGallery
+                              {aboutData.imagesGallery
                                 .slice(i * 6, i * 6 + 6)
                                 .map((image, index) => (
                                   <div
@@ -461,7 +453,7 @@ export default function AboutModal({
                 All rights reserved.
               </span>
             </div>
-          ))}
+          )}
         </div>
       </div>
     </div>

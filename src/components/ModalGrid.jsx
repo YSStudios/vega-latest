@@ -40,7 +40,6 @@ export default function ModalGrid({
   caseStudies,
   about,
   trans,
-  instaFeed,
   vegaTv,
   songData,
   setFocusedComponent,
@@ -241,6 +240,27 @@ export default function ModalGrid({
     }
   }, [currentContent, lightboxRef]);
 
+  // Add loading state
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (caseStudies && about && trans && vegaTv) {
+      setIsLoading(false);
+    }
+  }, [caseStudies, about, trans, vegaTv]);
+
+  // Debug logs
+  useEffect(() => {
+    console.log('VegaTv Data:', vegaTv);
+    console.log('About Data:', about);
+    console.log('Trans Data:', trans);
+    console.log('Case Studies Data:', caseStudies);
+  }, [vegaTv, about, trans, caseStudies]);
+
+  if (isLoading) {
+    return <div>Loading...</div>; // Or your loading component
+  }
+
   return (
     <>
       <div
@@ -322,7 +342,7 @@ export default function ModalGrid({
             toggleSub={toggleCaseSubActive}
             activeModal={active.caseStudiesActive}
             id={`caseRef`}
-            caseStudiesState={caseStudiesState}
+            caseStudiesState={caseStudies}
             draggablesRef={draggablesRef}
             openModal={openModal}
             handleModalResize={handleModalResize}
@@ -396,7 +416,7 @@ export default function ModalGrid({
             activeModal={active.aboutActive}
             id={`aboutRef`}
             draggablesRef={draggablesRef}
-            aboutState={aboutState}
+            aboutState={about}
             urlFor={urlFor}
             handleModalResize={handleModalResize}
           />
@@ -429,7 +449,7 @@ export default function ModalGrid({
             activeModal={active.transActive}
             id={`transRef`}
             draggablesRef={draggablesRef}
-            transState={transState}
+            transState={trans}
             urlFor={urlFor}
             handleModalResize={handleModalResize}
           />

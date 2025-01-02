@@ -120,6 +120,12 @@ export default async function handler(req, res) {
       ]
     );
 
+    console.log('Case Studies:', JSON.stringify(caseStudies, null, 2));
+    console.log('Vega TV Data:', JSON.stringify(vegaTvData, null, 2));
+    console.log('About Data:', JSON.stringify(about, null, 2));
+    console.log('Trans Data:', JSON.stringify(trans, null, 2));
+    console.log('Song Data:', JSON.stringify(songData, null, 2));
+
     res.status(200).json({ caseStudies, vegaTvData, about, trans, songData });
   } catch (error) {
     console.error("Error fetching data from Sanity:", error);

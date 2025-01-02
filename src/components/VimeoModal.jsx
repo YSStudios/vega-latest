@@ -15,6 +15,9 @@ export default function VimeoModal({
   width,
   height,
   toggle,
+  urlFor,
+  handleModalResize,
+  vegaTv
 }) {
   const active = useSelector(modalValue);
   const dispatch = useDispatch();
@@ -25,22 +28,13 @@ export default function VimeoModal({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [currentVideoName, setCurrentVideoName] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const [vegaTvData, setVegaTvData] = useState([]);
+  const [vegaTvData, setVegaTvData] = useState(null);
 
   useEffect(() => {
-    // Fetch vegaTv data
-    async function fetchVegaTvData() {
-      try {
-        const response = await fetch("/api/fetchData");
-        const data = await response.json();
-        setVegaTvData(data.vegaTvData);
-      } catch (error) {
-        console.error("Error fetching vegaTv data:", error);
-      }
+    if (vegaTv) {
+      setVegaTvData(vegaTv);
     }
-
-    fetchVegaTvData();
-  }, []);
+  }, [vegaTv]);
 
   const handleLoadingState = () => {
     setTimeout(() => {
@@ -48,26 +42,9 @@ export default function VimeoModal({
     }, 250);
   };
 
-  const handleModalResize = (modalRef, resize, window, width, height) => {
-    dispatch(resize());
-    if (maximizeRef.current) {
-      if (maximizeRef.current.requestFullscreen) {
-        maximizeRef.current.requestFullscreen();
-        setIsFullscreen(true);
-      } else if (maximizeRef.current.mozRequestFullScreen) {
-        maximizeRef.current.mozRequestFullScreen();
-        setIsFullscreen(true);
-      } else if (maximizeRef.current.webkitRequestFullscreen) {
-        maximizeRef.current.webkitRequestFullscreen();
-        setIsFullscreen(true);
-      } else if (maximizeRef.current.msRequestFullscreen) {
-        maximizeRef.current.msRequestFullscreen();
-        setIsFullscreen(true);
-      }
-    }
-  };
-
   const handleNextVideo = () => {
+    if (!vegaTvData || vegaTvData.length === 0) return;
+    
     setCurrentVideoIndex((prevState) =>
       prevState + 1 < vegaTvData.length ? prevState + 1 : 0
     );
@@ -76,6 +53,8 @@ export default function VimeoModal({
   };
 
   const handlePreviousVideo = () => {
+    if (!vegaTvData || vegaTvData.length === 0) return;
+    
     setCurrentVideoIndex((prevState) =>
       prevState - 1 >= 0 ? prevState - 1 : vegaTvData.length - 1
     );
@@ -117,7 +96,7 @@ export default function VimeoModal({
   }, []);
 
   useEffect(() => {
-    if (vegaTvData.length > 0) {
+    if (vegaTvData && vegaTvData.length > 0) {
       setCurrentVideoName(vegaTvData[currentVideoIndex]);
     }
   }, [currentVideoIndex, vegaTvData]);
@@ -193,18 +172,20 @@ export default function VimeoModal({
                 />
               </div>
             )}
-            <video
-              ref={videoRef}
-              src={vegaTvData[currentVideoIndex]}
-              height={"auto"}
-              width={"100%"}
-              autoPlay
-              muted
-              loop
-              controls={false}
-              playsInline
-              onCanPlay={handleLoadingState}
-            ></video>
+            {vegaTvData && vegaTvData.videoUrls && (
+              <video
+                ref={videoRef}
+                src={vegaTvData.videoUrls[currentVideoIndex]}
+                height={"auto"}
+                width={"100%"}
+                autoPlay
+                muted
+                loop
+                controls={false}
+                playsInline
+                onCanPlay={handleLoadingState}
+              ></video>
+            )}
             <div className={styles.vimeo_control_wrapper}>
               <button
                 className={styles.skip_back}

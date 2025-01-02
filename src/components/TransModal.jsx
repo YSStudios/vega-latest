@@ -12,26 +12,18 @@ export default function TransModal({
   toggle,
   urlFor,
   handleModalResize,
+  transState
 }) {
   const active = useSelector(modalValue);
   const dispatch = useDispatch();
   const maximizeRef = useRef(null);
-  const [transData, setTransData] = useState([]);
+  const [transData, setTransData] = useState(transState);
 
   useEffect(() => {
-    // Fetch trans data
-    async function fetchTransData() {
-      try {
-        const response = await fetch("/api/fetchData");
-        const data = await response.json();
-        setTransData(data.trans);
-      } catch (error) {
-        console.error("Error fetching trans data:", error);
-      }
+    if (transState) {
+      setTransData(transState);
     }
-
-    fetchTransData();
-  }, []);
+  }, [transState]);
 
   return (
     <div className={styles.fullheight}>
@@ -49,47 +41,48 @@ export default function TransModal({
         }`}
       >
         <div ref={maximizeRef}>
-          {transData.map((trans, index) => (
-            <div key={index}>
-              <div className={styles.trans_modal_media_video}>
-                {trans.videos &&
-                  trans.videos.map((video, index) => (
-                    <div key={index}>
-                      <a
-                        href={video.videoLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
+          {transData &&
+            transData.map((trans, index) => (
+              <div key={index}>
+                <div className={styles.trans_modal_media_video}>
+                  {trans.videos &&
+                    trans.videos.map((video, index) => (
+                      <div key={index}>
+                        <a
+                          href={video.videoLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <img
+                            src={
+                              video.thumbnail ? urlFor(video.thumbnail).url() : ""
+                            }
+                            alt={`Video thumbnail ${index}`}
+                            style={{ cursor: "pointer" }}
+                          />
+                        </a>
+                      </div>
+                    ))}
+                </div>
+                <div className={styles.text_content}>
+                  <PortableText content={trans.body} dataset="production" />
+                  {trans.body2 ? (
+                    <PortableText content={trans.body2} dataset="production" />
+                  ) : null}
+                </div>
+                <div className={styles.trans_modal_media_gallery}>
+                  {trans.imagesGallery &&
+                    trans.imagesGallery.map((image, index) => (
+                      <div key={index}>
                         <img
-                          src={
-                            video.thumbnail ? urlFor(video.thumbnail).url() : ""
-                          }
-                          alt={`Video thumbnail ${index}`}
-                          style={{ cursor: "pointer" }}
+                          src={urlFor(image).url()}
+                          alt={`trans image ${index}`}
                         />
-                      </a>
-                    </div>
-                  ))}
+                      </div>
+                    ))}
+                </div>
               </div>
-              <div className={styles.text_content}>
-                <PortableText content={trans.body} dataset="production" />
-                {trans.body2 ? (
-                  <PortableText content={trans.body2} dataset="production" />
-                ) : null}
-              </div>
-              <div className={styles.trans_modal_media_gallery}>
-                {trans.imagesGallery &&
-                  trans.imagesGallery.map((image, index) => (
-                    <div key={index}>
-                      <img
-                        src={urlFor(image).url()}
-                        alt={`trans image ${index}`}
-                      />
-                    </div>
-                  ))}
-              </div>
-            </div>
-          ))}
+            ))}
         </div>
       </div>
     </div>
