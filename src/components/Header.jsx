@@ -1,16 +1,26 @@
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import styles from "../styles/Header.module.scss";
 import TimeWeather from "../components/TimeWeather";
 import { useSelector, useDispatch } from "react-redux";
 import { toggleLoaderActive } from "../slices/modalSlice";
+import { fetchWeatherData } from "../api/weatherApi";
 
-const Header = ({ weatherData }) => {
+const Header = () => {
   const dispatch = useDispatch();
   const loaderActive = useSelector((state) => {
     return state.active ? state.active.loaderActive : null;
   });
 
-  useEffect(() => {}, [loaderActive]);
+  const [weatherData, setWeatherData] = useState(null);
+
+  useEffect(() => {
+    const getWeatherData = async () => {
+      const data = await fetchWeatherData("new york");
+      setWeatherData(data);
+    };
+
+    getWeatherData();
+  }, []);
 
   const handleLogoClick = useCallback(
     (e) => {
@@ -38,7 +48,7 @@ const Header = ({ weatherData }) => {
         <div className={styles.deco_middle}> </div>
         <div className={styles.deco_right}></div>
       </div>
-      <TimeWeather weatherData={weatherData} />
+      {weatherData && <TimeWeather weatherData={weatherData} />}
     </header>
   );
 };
