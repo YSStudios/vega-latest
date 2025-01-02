@@ -251,15 +251,11 @@ export default function ModalGrid({
 
   // Debug logs
   useEffect(() => {
-    console.log('VegaTv Data:', vegaTv);
-    console.log('About Data:', about);
-    console.log('Trans Data:', trans);
-    console.log('Case Studies Data:', caseStudies);
+    console.log("VegaTv Data:", vegaTv);
+    console.log("About Data:", about);
+    console.log("Trans Data:", trans);
+    console.log("Case Studies Data:", caseStudies);
   }, [vegaTv, about, trans, caseStudies]);
-
-  if (isLoading) {
-    return <div>Loading...</div>; // Or your loading component
-  }
 
   return (
     <>
