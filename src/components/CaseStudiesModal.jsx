@@ -11,7 +11,6 @@ export default function CaseStudiesModal({
   modalName,
   modalRef,
   resize,
-  caseStudiesState,
   openModal,
   handleModalResize,
   toggle,
@@ -20,12 +19,26 @@ export default function CaseStudiesModal({
   const dispatch = useDispatch();
   const maximizeRef = useRef(null);
   const audioRef = useRef(null);
+  const [caseStudies, setCaseStudies] = useState([]);
 
   useEffect(() => {
     // Load the audio file
     audioRef.current = new Audio(
       "https://res.cloudinary.com/dtps5ugbf/video/upload/v1722389162/Unrealsfx_-_Cyberpunk_-_UI_HUD_Notification_ovkwjh.wav"
     );
+
+    // Fetch case studies data
+    async function fetchCaseStudies() {
+      try {
+        const response = await fetch("/api/fetchData");
+        const data = await response.json();
+        setCaseStudies(data.caseStudies);
+      } catch (error) {
+        console.error("Error fetching case studies:", error);
+      }
+    }
+
+    fetchCaseStudies();
   }, []);
 
   const handleZIndex = (toggle, ref) => {
@@ -69,7 +82,7 @@ export default function CaseStudiesModal({
       <div className={styles.modal_content}>
         <div ref={maximizeRef} className={styles.modal_body}>
           <div className={styles.case_studies_body}>
-            {caseStudiesState?.map((study, index) => (
+            {caseStudies.map((study, index) => (
               <div className={styles.case_study} key={index}>
                 <div height={300} offset={300}>
                   <div className={styles.case_image_wrap}>

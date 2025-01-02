@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import styles from "../../styles/Player.module.scss";
 import Library from "./Library";
@@ -14,10 +14,8 @@ const Player = ({
   songInfo,
   setSongInfo,
   currentSong,
-  songs,
   setCurrentSong,
   setSongs,
-  songData,
   urlFor,
   isMobile,
 }) => {
@@ -26,6 +24,23 @@ const Player = ({
   const playerRef = useRef(null);
   const imageRef = useRef(null);
   const rotationTween = useRef(null);
+  const [songData, setSongData] = useState([]);
+
+  useEffect(() => {
+    // Fetch song data
+    async function fetchSongData() {
+      try {
+        const response = await fetch("/api/fetchData");
+        const data = await response.json();
+        setSongData(data.songData);
+        setSongs(data.songData); // Initialize songs state with fetched data
+      } catch (error) {
+        console.error("Error fetching song data:", error);
+      }
+    }
+
+    fetchSongData();
+  }, [setSongs]);
 
   useEffect(() => {
     if (isPlaying) {
@@ -48,13 +63,9 @@ const Player = ({
     };
   }, [isPlaying]);
 
-  // console.log("Current Song:", currentSong);
-  // console.log("Songs:", songs);
-  // console.log("Song Data:", songData);
-
   const activeLibraryHandler = (nextPrev) => {
-    const newSongs = Array.isArray(songs)
-      ? songs.map((song) => {
+    const newSongs = Array.isArray(songData)
+      ? songData.map((song) => {
           if (song._id === nextPrev._id) {
             return {
               ...song,
@@ -99,26 +110,28 @@ const Player = ({
   };
 
   const skipTrackHandler = async (direction) => {
-    if (!Array.isArray(songs)) {
+    if (!Array.isArray(songData)) {
       return;
     }
 
-    let currentIndex = songs.findIndex((song) => song._id === currentSong._id);
+    let currentIndex = songData.findIndex(
+      (song) => song._id === currentSong._id
+    );
 
     // Forward Back
     if (direction === "skip-forward") {
-      await setCurrentSong(songs[(currentIndex + 1) % songs.length]);
-      activeLibraryHandler(songs[(currentIndex + 1) % songs.length]);
+      await setCurrentSong(songData[(currentIndex + 1) % songData.length]);
+      activeLibraryHandler(songData[(currentIndex + 1) % songData.length]);
     }
     if (direction === "skip-back") {
-      if ((currentIndex - 1) % songs.length === -1) {
-        await setCurrentSong(songs[songs.length - 1]);
-        activeLibraryHandler(songs[songs.length - 1]);
+      if ((currentIndex - 1) % songData.length === -1) {
+        await setCurrentSong(songData[songData.length - 1]);
+        activeLibraryHandler(songData[songData.length - 1]);
         playAudio(isPlaying, audioRef);
         return;
       }
-      await setCurrentSong(songs[(currentIndex - 1) % songs.length]);
-      activeLibraryHandler(songs[(currentIndex - 1) % songs.length]);
+      await setCurrentSong(songData[(currentIndex - 1) % songData.length]);
+      activeLibraryHandler(songData[(currentIndex - 1) % songData.length]);
     }
     if (isPlaying) {
       try {
@@ -136,10 +149,10 @@ const Player = ({
   };
 
   const songSelectHandler = () => {
-    const selectedSong = songs.filter((state) => state._id === song._id);
+    const selectedSong = songData.filter((state) => state._id === song._id);
     setCurrentSong({ ...selectedSong[0] });
     // Set Active in library
-    const newSongs = songs.map((song) => {
+    const newSongs = songData.map((song) => {
       if (song._id === _id) {
         return {
           ...song,
@@ -219,9 +232,13 @@ const Player = ({
           ) : (
             <div className={styles.track_info}>
               <span className={styles.artist_name}>{currentSong?.artist}</span>
-			  <Marquee pauseOnHover={true} speed={25} className={styles.track_container}>
-              	<span className={styles.track_name}>{currentSong?.name}</span>
-			  </Marquee>
+              <Marquee
+                pauseOnHover={true}
+                speed={25}
+                className={styles.track_container}
+              >
+                <span className={styles.track_name}>{currentSong?.name}</span>
+              </Marquee>
             </div>
           )}
         </div>
@@ -293,15 +310,15 @@ const Player = ({
         </div>
         <div className={styles.volumeContainer}>
           {/* <div className={styles.volumeSlider}>
-			<input
-			  onChange={changeVolume}
-			  value={songInfo.volume}
-			  max="1"
-			  min="0"
-			  step="0.01"
-			  type="range"
-			/>
-		  </div> */}
+            <input
+              onChange={changeVolume}
+              value={songInfo.volume}
+              max="1"
+              min="0"
+              step="0.01"
+              type="range"
+            />
+          </div> */}
         </div>
         <div
           className={
@@ -312,7 +329,7 @@ const Player = ({
           ref={playerRef}
         >
           <Library
-            songs={songs}
+            songs={songData}
             setCurrentSong={setCurrentSong}
             audioRef={audioRef}
             isPlaying={isPlaying}

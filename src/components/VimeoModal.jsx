@@ -15,7 +15,6 @@ export default function VimeoModal({
   width,
   height,
   toggle,
-  vegaTv,
 }) {
   const active = useSelector(modalValue);
   const dispatch = useDispatch();
@@ -26,6 +25,22 @@ export default function VimeoModal({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [currentVideoName, setCurrentVideoName] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [vegaTvData, setVegaTvData] = useState([]);
+
+  useEffect(() => {
+    // Fetch vegaTv data
+    async function fetchVegaTvData() {
+      try {
+        const response = await fetch("/api/fetchData");
+        const data = await response.json();
+        setVegaTvData(data.vegaTvData);
+      } catch (error) {
+        console.error("Error fetching vegaTv data:", error);
+      }
+    }
+
+    fetchVegaTvData();
+  }, []);
 
   const handleLoadingState = () => {
     setTimeout(() => {
@@ -54,7 +69,7 @@ export default function VimeoModal({
 
   const handleNextVideo = () => {
     setCurrentVideoIndex((prevState) =>
-      prevState + 1 < vegaTv.length ? prevState + 1 : 0
+      prevState + 1 < vegaTvData.length ? prevState + 1 : 0
     );
     setIsPaused(false);
     setIsLoading(true);
@@ -62,7 +77,7 @@ export default function VimeoModal({
 
   const handlePreviousVideo = () => {
     setCurrentVideoIndex((prevState) =>
-      prevState - 1 >= 0 ? prevState - 1 : vegaTv.length - 1
+      prevState - 1 >= 0 ? prevState - 1 : vegaTvData.length - 1
     );
     setIsPaused(false);
     setIsLoading(true);
@@ -102,8 +117,10 @@ export default function VimeoModal({
   }, []);
 
   useEffect(() => {
-    setCurrentVideoName(vegaTv[currentVideoIndex]);
-  }, [currentVideoIndex, vegaTv]);
+    if (vegaTvData.length > 0) {
+      setCurrentVideoName(vegaTvData[currentVideoIndex]);
+    }
+  }, [currentVideoIndex, vegaTvData]);
 
   return (
     <>
@@ -178,7 +195,7 @@ export default function VimeoModal({
             )}
             <video
               ref={videoRef}
-              src={vegaTv[currentVideoIndex]}
+              src={vegaTvData[currentVideoIndex]}
               height={"auto"}
               width={"100%"}
               autoPlay

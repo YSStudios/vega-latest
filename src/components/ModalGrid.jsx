@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import gsap from "gsap";
-import { Draggable } from "../../gsap";
+import { Draggable } from "../gsap";
 import styles from "../styles/Styles.module.scss";
 import VimeoModal from "../components/VimeoModal";
 import AboutModal from "../components/AboutModal";
@@ -12,6 +12,7 @@ import MusicPlayer from "../components/MusicPlayer/MusicPlayer";
 import CaseSubModal from "../components/CaseSubModal";
 import Lightbox from "../components/LightBox";
 import useDelayedStyles from "../hooks/useDelayedStyles";
+import { urlFor } from "../api/fetchData";
 
 import {
   modalValue,
@@ -40,7 +41,6 @@ export default function ModalGrid({
   about,
   trans,
   instaFeed,
-  urlFor,
   vegaTv,
   songData,
   setFocusedComponent,
@@ -457,7 +457,6 @@ export default function ModalGrid({
             height={500}
             toggle={toggleInstagramActive}
             activeModal={active.instagramActive}
-            instaFeed={instaFeed.data}
             id={`instagramRef`}
             draggablesRef={draggablesRef}
           />

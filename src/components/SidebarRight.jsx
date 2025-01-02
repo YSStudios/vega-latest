@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import gsap from "gsap";
-import { Draggable } from "../../gsap";
+import { Draggable } from "../gsap";
 import {
   toggleVimeoActive,
   toggleCaseStudiesActive,
